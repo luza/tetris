@@ -59,13 +59,13 @@ void
 Screen::redrawTexts()
 {
 	char text[32];
-	sprintf_s(text, sizeof(text), "Score        %06d", score);
+	sprintf(text, "Score        %06d", score);
 	m_txScore.setText(text);
 
-	sprintf_s(text, sizeof(text), "Lines        %06d", linesCleared);
+	sprintf(text, "Lines        %06d", linesCleared);
 	m_txLines.setText(text);
 
-	sprintf_s(text, sizeof(text), "Level        %06d", level);
+	sprintf(text, "Level        %06d", level);
 	m_txLevel.setText(text);
 }
 

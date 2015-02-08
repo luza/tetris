@@ -268,6 +268,6 @@ void
 MenuScreen::setScore(int score)
 {
 	char text[20];
-	sprintf_s(text, 20, "Score %d", score);
+	sprintf(text, "Score %d", score);
 	m_txScore.setText(text);
 }

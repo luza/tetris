@@ -23,9 +23,8 @@ private:
 	void calculateDest();
 	int checkXR(int posX, int r);
 
-	int m_destPosX, m_destPosY, m_destRotation;
+	int m_destPosX, m_destRotation;
 
 	Field *m_field;
-	Painter *m_painter;
 	Piece m_piece, m_nextPiece;
 };
