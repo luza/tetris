@@ -23,6 +23,7 @@ private:
 	void pause();
 	void startNewGame();
 	void onTimer();
+	void gameOver();
 
 	enum {
 		STATE_INCEPTION,
@@ -32,6 +33,7 @@ private:
 	};
 
 	Uint32 m_tickInterval;
+
 	Uint32 m_lastTick;
 	Uint32 m_lastAnimationTick;
 	Uint32 m_lastDemoWaitingTick;

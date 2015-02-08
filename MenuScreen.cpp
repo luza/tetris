@@ -12,14 +12,6 @@ MenuScreen::MenuScreen(SDL_Renderer *renderer, Painter *painter, Singer *singer)
 	m_painter = painter;
 	m_singer = singer;
 
-	m_background = SDL_CreateTexture(
-		m_renderer,
-		SDL_PIXELFORMAT_RGBA8888,
-		SDL_TEXTUREACCESS_TARGET,
-		WINDOW_WIDTH_PX,
-		WINDOW_HEIGHT_PX
-	);
-
 	m_slidedX = 0;
 	m_slidedY = 0;
 	m_activeMenuItem = 0;
@@ -58,6 +50,15 @@ MenuScreen::prepareMenu()
 void
 MenuScreen::generateBackground()
 {
+	m_background = SDL_CreateTexture(
+		m_renderer,
+		SDL_PIXELFORMAT_RGBA8888,
+		SDL_TEXTUREACCESS_TARGET,
+		WINDOW_WIDTH_PX,
+		WINDOW_HEIGHT_PX
+	);
+
+	// all rendering commands will be applied to the texture
 	SDL_SetRenderTarget(m_renderer, m_background);
 
 	for (int y=0; y<4; y++) {
@@ -93,6 +94,7 @@ MenuScreen::draw()
 		Painter::TEXT_ALIGN_CENTER
 	);
 
+	// draw score
 	m_painter->drawText(
 		&m_txScore,
 		WINDOW_WIDTH_PX/2,
@@ -100,6 +102,7 @@ MenuScreen::draw()
 		Painter::TEXT_ALIGN_CENTER
 	);
 
+	// draw menu
 	for (Uint8 i=0,n=0; i<m_menuList.size(); i++) {
 		// skip not enabled items
 		if (!m_menuList[i].enabled) {

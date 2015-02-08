@@ -1,5 +1,3 @@
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
 #include "SDL.h"
 #include "SDL_ttf.h"
 #include "AppController.h"
@@ -7,9 +5,6 @@
 
 AppController::AppController()
 {
-	/* initialize random seed */
-	srand((unsigned int)time(NULL));
-
 	SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO|SDL_INIT_EVENTS);
 
 	m_window = SDL_CreateWindow(
@@ -54,6 +49,7 @@ AppController::AppController()
 
 AppController::~AppController()
 {
+	delete m_menuScreen;
 	delete m_screen;
 	delete m_painter;
 
@@ -65,6 +61,9 @@ AppController::~AppController()
 	SDL_Quit();
 }
 
+/**
+ * Main loop
+ */
 int
 AppController::start()
 {
@@ -217,15 +216,7 @@ AppController::onTimer()
 	bool gameOver = false;
 	m_screen->onTimer(&m_score, &gameOver);
 	if (gameOver) {
-		if (m_state != STATE_DEMO) {
-			m_menuScreen->setTitle("Game Over");
-			m_menuScreen->setScore(m_score);
-			m_menuScreen->setMenuItemEnabled(MenuScreen::ACTION_CONTINUE, false);
-			m_menuScreen->setMenuItemActive(MenuScreen::ACTION_START);
-		}
-		m_singer.setMute(false);
-		m_lastDemoWaitingTick = SDL_GetTicks();
-		m_state = STATE_INCEPTION;
+		gameOver();
 	}
 	m_tickInterval = m_screen->getTimerInterval();
 }
@@ -242,19 +233,30 @@ AppController::startNewGame()
 void
 AppController::pause()
 {
-	switch (m_state) {
-		case STATE_GAME:
-			m_state = STATE_PAUSE;
-			m_menuScreen->setTitle("Paused");
-			m_menuScreen->setScore(m_score);
-			m_menuScreen->setMenuItemEnabled(MenuScreen::ACTION_CONTINUE, true);
-			m_menuScreen->setMenuItemActive(MenuScreen::ACTION_CONTINUE);
-			m_menuScreen->draw();
-			break;
-
-		case STATE_PAUSE:
-			m_state = STATE_GAME;
-			m_screen->draw();
-			break;
+	if (m_state == STATE_GAME) {
+		m_state = STATE_PAUSE;
+		m_menuScreen->setTitle("Paused");
+		m_menuScreen->setScore(m_score);
+		m_menuScreen->setMenuItemEnabled(MenuScreen::ACTION_CONTINUE, true);
+		m_menuScreen->setMenuItemActive(MenuScreen::ACTION_CONTINUE);
+		m_menuScreen->draw();
+	} else if (m_state == STATE_PAUSE) {
+		m_state = STATE_GAME;
+		m_screen->draw();
 	}
+}
+
+void
+AppController::gameOver()
+{
+	if (m_state != STATE_DEMO) {
+		m_menuScreen->setTitle("Game Over");
+		m_menuScreen->setScore(m_score);
+		m_menuScreen->setMenuItemEnabled(MenuScreen::ACTION_CONTINUE, false);
+		m_menuScreen->setMenuItemActive(MenuScreen::ACTION_START);
+	}
+
+	m_singer.setMute(false);
+	m_lastDemoWaitingTick = SDL_GetTicks();
+	m_state = STATE_INCEPTION;
 }
