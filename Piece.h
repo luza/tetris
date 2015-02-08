@@ -4,15 +4,22 @@
 
 class Piece {
 public:
+	Piece();
 	Piece(int piece, int rotation);
 	void resetBlocksEnum();
 	bool iterateBlocksEnum(int *x, int *y);
 	void rotate();
+	bool checkHasBlock(int x, int y);
 
-	int getPiece();
 	Uint8 getColorRed();
 	Uint8 getColorGreen();
 	Uint8 getColorBlue();
+
+	void setPiece(int piece);
+	int getPiece();
+
+	void setRotation(int rotation);
+	int getRotation();
 
 	enum {
 		ROTATION_0,

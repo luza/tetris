@@ -6,7 +6,8 @@ Field::Field(Painter *painter)
 	m_painter = painter;
 }
 
-void Field::reset()
+void
+Field::reset()
 {
 	// clear field
 	for (Uint8 x=0; x<FIELD_WIDTH; x++) {
@@ -16,7 +17,8 @@ void Field::reset()
 	}
 }
 
-void Field::draw()
+void
+Field::draw()
 {
 	m_painter->drawField(
 		FIELD_X_PX,
@@ -27,7 +29,8 @@ void Field::draw()
 	drawHeap();
 }
 
-void Field::drawHeap()
+void
+Field::drawHeap()
 {
 	// from bottom to top
 	for (int y=FIELD_HEIGHT-1; y>=0; y--) {
@@ -53,7 +56,8 @@ void Field::drawHeap()
 	}
 }
 
-void Field::drawPiece(Piece *piece, int posX, int posY)
+void
+Field::drawPiece(Piece *piece, int posX, int posY)
 {
 	int x, y;
 	piece->resetBlocksEnum();
@@ -78,7 +82,8 @@ void Field::drawPiece(Piece *piece, int posX, int posY)
 	}
 }
 
-Uint8 Field::checkCollisions(
+Uint8
+Field::checkCollisions(
 	Piece *piece,
 	int posX,
 	int posY,
@@ -135,7 +140,8 @@ Uint8 Field::checkCollisions(
 	return result;
 }
 
-int Field::clearRows()
+int
+Field::clearRows()
 {
 	int clearedRows = 0;
 
@@ -177,7 +183,8 @@ int Field::clearRows()
 	return clearedRows;
 }
 
-void Field::copyPieceToHeap(Piece *piece, int posX, int posY)
+void
+Field::copyPieceToHeap(Piece *piece, int posX, int posY)
 {
 	int x, y;
 
@@ -197,3 +204,10 @@ void Field::copyPieceToHeap(Piece *piece, int posX, int posY)
 		}
 	}
 }
+
+bool
+Field::checkNotBlank(int x, int y)
+{
+	return (m_field[x][y] != BLANK);
+}
+

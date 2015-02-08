@@ -18,10 +18,13 @@ public:
 	SDL_Texture *getTexture(SDL_Renderer *renderer);
 
 private:
+	void init();
 	void reset();
 
 	std::string m_text;
 	int m_size;
 	SDL_Color m_color;
 	SDL_Texture *m_texture;
+
+	static SDL_Surface *m_font;
 };

@@ -1,14 +1,16 @@
 #include <stdarg.h>
 #include "Text.h"
 
+//SDL_Surface *Text::m_font = SDL_LoadBMP("..\\resources\\font50.bmp");
+
 Text::Text()
 {
-	m_texture = NULL;
+	init();
 }
 
 Text::Text(const char *text, int size, SDL_Color color)
 {
-	m_texture = NULL;
+	init();
 
 	m_text = text;
 	m_size = size;
@@ -25,7 +27,7 @@ Text::Text(
 ) {
 	SDL_Color color = { red, green, blue, alpha };
 
-	m_texture = NULL;
+	init();
 
 	m_text = text;
 	m_size = size;
@@ -39,19 +41,22 @@ Text::~Text()
 	}
 }
 
-void Text::setSize(int size)
+void
+Text::setSize(int size)
 {
 	m_size = size;
 	reset();
 }
 
-void Text::setColor(SDL_Color color)
+void
+Text::setColor(SDL_Color color)
 {
 	m_color = color;
 	reset();
 }
 
-void Text::setColor(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha)
+void
+Text::setColor(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha)
 {
 	m_color.r = red;
 	m_color.g = green;
@@ -60,13 +65,21 @@ void Text::setColor(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha)
 	reset();
 }
 
-void Text::setText(const char *text)
+void
+Text::setText(const char *text)
 {
 	m_text = text;
 	reset();
 }
 
-void Text::reset()
+void
+Text::init()
+{
+	m_texture = NULL;
+}
+
+void
+Text::reset()
 {
 	// reset previous calculations
 	if (m_texture) {
@@ -75,13 +88,14 @@ void Text::reset()
 	}
 }
 
-SDL_Texture *Text::getTexture(SDL_Renderer *renderer)
+SDL_Texture *
+Text::getTexture(SDL_Renderer *renderer)
 {
 	if (m_texture != NULL) {
 		return m_texture;
 	}
 
-	TTF_Font *font = TTF_OpenFont("nk57-monospace-sc-rg.ttf", m_size);
+	TTF_Font *font = TTF_OpenFont("resources/nk57-monospace-sc-rg.ttf", m_size);
 	SDL_Surface *textSurface = TTF_RenderText_Blended(font, m_text.c_str(), m_color);
 	TTF_CloseFont(font);
 

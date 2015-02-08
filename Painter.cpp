@@ -13,7 +13,8 @@ Painter::~Painter()
 /**
  * Draw piece at absolute position
  */
-void Painter::drawPieceAt(Piece *piece, int posX, int posY)
+void
+Painter::drawPieceAt(Piece *piece, int posX, int posY)
 {
 	int x, y;
 	piece->resetBlocksEnum();
@@ -30,7 +31,8 @@ void Painter::drawPieceAt(Piece *piece, int posX, int posY)
 	}
 }
 
-void Painter::drawBlock(
+void
+Painter::drawBlock(
 	int x,
 	int y,
 	int width,
@@ -74,7 +76,8 @@ void Painter::drawBlock(
 	SDL_RenderDrawLine(m_renderer, x, y + height - 1, x + width - 1, y + height - 1);
 }
 
-void Painter::drawField(int x, int y, int width, int height)
+void
+Painter::drawField(int x, int y, int width, int height)
 {
 	SDL_Rect rect;
 	SDL_SetRenderDrawColor(m_renderer, 0x80, 0x80, 0x80, 0xFF);
@@ -87,7 +90,8 @@ void Painter::drawField(int x, int y, int width, int height)
 	}
 }
 
-void Painter::drawText(Text *text, int x, int y, int align)
+void
+Painter::drawText(Text *text, int x, int y, int align)
 {
 	SDL_Rect destRect;
 	SDL_Texture *texture = text->getTexture(m_renderer);

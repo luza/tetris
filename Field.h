@@ -23,6 +23,7 @@ public:
 	Uint8 checkCollisions(Piece *piece, int posX, int posY, Uint8 what);
 	int clearRows();
 	void copyPieceToHeap(Piece *piece, int posX, int posY);
+	bool checkNotBlank(int x, int y);
 
 	enum {
 		COLLIDED_LEFT  = 1,

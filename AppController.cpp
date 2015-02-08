@@ -3,6 +3,7 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
 #include "AppController.h"
+#include "Singer.h"
 
 AppController::AppController()
 {
@@ -30,18 +31,25 @@ AppController::AppController()
 
 	SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 
+	m_painter = new Painter(m_renderer);
+	m_screen = new Screen(m_renderer, m_painter, &m_singer);
+
 	SDL_ShowWindow(m_window);
 
-	m_painter = new Painter(m_renderer);
-	m_menuScreen = new MenuScreen(m_window, m_renderer, m_painter);
-	m_screen = new Screen(m_window, m_renderer, m_painter);
+	m_menuScreen = new MenuScreen(m_renderer, m_painter, &m_singer);
 	m_menuScreen->draw();
 
-	m_paused = true;
-	m_gameStarted = false;
-	m_quit = false;
+	m_state = STATE_INCEPTION;
 
 	m_tickInterval = m_screen->getTimerInterval();
+
+	m_lastAnimationTick = 0;
+	m_lastTick = 0;
+	m_lastDemoWaitingTick = 0;
+	m_lastDemoTick = 0;
+
+	m_quit = false;
+	m_score = 0;
 }
 
 AppController::~AppController()
@@ -57,31 +65,44 @@ AppController::~AppController()
 	SDL_Quit();
 }
 
-int AppController::start()
+int
+AppController::start()
 {
 	SDL_Event e;
 	while (!m_quit) {
 		int rv = SDL_WaitEventTimeout(&e, ANIMATION_INTERVAL);
+		Uint32 ticks = SDL_GetTicks();
 		if (
-			m_paused
-			&& SDL_TICKS_PASSED(SDL_GetTicks(), m_lastAnimationTick + ANIMATION_INTERVAL)
+			m_state == STATE_INCEPTION
+			|| m_state == STATE_PAUSE
 		) {
-			m_lastAnimationTick = SDL_GetTicks();
-			m_menuScreen->animate();
+			if (SDL_TICKS_PASSED(ticks, m_lastAnimationTick + ANIMATION_INTERVAL)) {
+				m_lastAnimationTick = ticks;
+				m_menuScreen->animate();
+			}
+			if (
+				m_state == STATE_INCEPTION
+				&& SDL_TICKS_PASSED(ticks, m_lastDemoWaitingTick + DEMO_INTERVAL)
+			) {
+				m_singer.setMute(true);
+				m_state = STATE_DEMO;
+				m_screen->resetGame();
+				m_screen->draw();
+			}
 		}
 		if (
-			!m_paused
-			&& SDL_TICKS_PASSED(SDL_GetTicks(), m_lastTick + m_tickInterval)
+			(m_state == STATE_GAME || m_state == STATE_DEMO)
+			&& SDL_TICKS_PASSED(ticks, m_lastTick + m_tickInterval)
 		) {
-			m_lastTick = SDL_GetTicks();
-			if (m_screen->onTimer()) {
-				m_paused = true;
-				m_gameStarted = false;
-				m_menuScreen->setTitle("Game Over");
-				m_menuScreen->setMenuItemEnabled(MenuScreen::ACTION_CONTINUE, false);
-				m_menuScreen->setMenuItemActive(MenuScreen::ACTION_START);
-			}
-			m_tickInterval = m_screen->getTimerInterval();
+			m_lastTick = ticks;
+			onTimer();
+		}
+		if (
+			m_state == STATE_DEMO
+			&& SDL_TICKS_PASSED(ticks, m_lastDemoTick + m_tickInterval/2)
+		) {
+			m_lastDemoTick = ticks;
+			m_screen->moveWisely();
 		}
 		if (rv) {
 			handleEvent(e);
@@ -90,14 +111,21 @@ int AppController::start()
 	return 0;
 }
 
-void AppController::handleEvent(SDL_Event& e)
+void
+AppController::handleEvent(SDL_Event& e)
 {
 	switch (e.type) {
 		case SDL_KEYDOWN:
-			if (m_paused) {
-				onKeyPressMenu(e.key);
-			} else {
+			// reset demo waiting time on any key press
+			m_lastDemoWaitingTick = SDL_GetTicks();
+			if (m_state == STATE_DEMO) {
+				m_singer.setMute(false);
+				m_state = STATE_INCEPTION;
+				m_menuScreen->draw();
+			} else if (m_state == STATE_GAME) {
 				onKeyPressGame(e.key);
+			} else {
+				onKeyPressMenu(e.key);
 			}
 			break;
 
@@ -105,22 +133,21 @@ void AppController::handleEvent(SDL_Event& e)
 			break;
 
 		case SDL_QUIT:
-			if (m_paused) {
-				m_quit = true;
-			} else {
+			if (m_state == STATE_GAME) {
 				pause();
+			} else {
+				m_quit = true;
 			}
 			break;
 	}
 }
 
-void AppController::onKeyPressMenu(SDL_KeyboardEvent& keyEvent)
+void
+AppController::onKeyPressMenu(SDL_KeyboardEvent& keyEvent)
 {
 	switch (keyEvent.keysym.sym) {
 		case SDLK_ESCAPE:
-			if (m_gameStarted) {
-				pause();
-			}
+			pause();
 			break;
 
 		case SDLK_UP:
@@ -134,9 +161,7 @@ void AppController::onKeyPressMenu(SDL_KeyboardEvent& keyEvent)
 		case SDLK_RETURN:
 			switch (m_menuScreen->enter()) {
 				case MenuScreen::ACTION_START:
-					m_screen->resetGame();
-					m_gameStarted = true;
-					pause();
+					startNewGame();
 					break;
 
 				case MenuScreen::ACTION_CONTINUE:
@@ -151,7 +176,8 @@ void AppController::onKeyPressMenu(SDL_KeyboardEvent& keyEvent)
 	}
 }
 
-void AppController::onKeyPressGame(SDL_KeyboardEvent& keyEvent)
+void
+AppController::onKeyPressGame(SDL_KeyboardEvent& keyEvent)
 {
 	switch (keyEvent.keysym.sym) {
 		case SDLK_ESCAPE:
@@ -178,18 +204,57 @@ void AppController::onKeyPressGame(SDL_KeyboardEvent& keyEvent)
 		case SDLK_RIGHT:
 			m_screen->movePieceRight();
 			break;
+
+		//case SDLK_F1:
+		//	m_screen->moveWisely();
+		//	break;
 	}
 }
 
-void AppController::pause()
+void
+AppController::onTimer()
 {
-	m_paused = !m_paused;
-	if (m_paused) {
-		m_menuScreen->setTitle("Paused");
-		m_menuScreen->setMenuItemEnabled(MenuScreen::ACTION_CONTINUE, true);
-		m_menuScreen->setMenuItemActive(MenuScreen::ACTION_CONTINUE);
-		m_menuScreen->draw();
-	} else {
-		m_screen->draw();
+	bool gameOver = false;
+	m_screen->onTimer(&m_score, &gameOver);
+	if (gameOver) {
+		if (m_state != STATE_DEMO) {
+			m_menuScreen->setTitle("Game Over");
+			m_menuScreen->setScore(m_score);
+			m_menuScreen->setMenuItemEnabled(MenuScreen::ACTION_CONTINUE, false);
+			m_menuScreen->setMenuItemActive(MenuScreen::ACTION_START);
+		}
+		m_singer.setMute(false);
+		m_lastDemoWaitingTick = SDL_GetTicks();
+		m_state = STATE_INCEPTION;
+	}
+	m_tickInterval = m_screen->getTimerInterval();
+}
+
+void
+AppController::startNewGame()
+{
+	m_state = STATE_GAME;
+	m_screen->resetGame();
+	m_score = 0;
+	m_screen->draw();
+}
+
+void
+AppController::pause()
+{
+	switch (m_state) {
+		case STATE_GAME:
+			m_state = STATE_PAUSE;
+			m_menuScreen->setTitle("Paused");
+			m_menuScreen->setScore(m_score);
+			m_menuScreen->setMenuItemEnabled(MenuScreen::ACTION_CONTINUE, true);
+			m_menuScreen->setMenuItemActive(MenuScreen::ACTION_CONTINUE);
+			m_menuScreen->draw();
+			break;
+
+		case STATE_PAUSE:
+			m_state = STATE_GAME;
+			m_screen->draw();
+			break;
 	}
 }

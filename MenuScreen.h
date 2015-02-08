@@ -4,10 +4,11 @@
 #include "SDL.h"
 #include "Painter.h"
 #include "Text.h"
+#include "Singer.h"
 
 class MenuScreen {
 public:
-	MenuScreen(SDL_Window *window, SDL_Renderer *renderer, Painter *painter);
+	MenuScreen(SDL_Renderer *renderer, Painter *painter, Singer *singer);
 	~MenuScreen();
 	void draw();
 	void animate();
@@ -17,6 +18,7 @@ public:
 	void setTitle(const char *title);
 	void setMenuItemEnabled(int action, bool active);
 	void setMenuItemActive(int action);
+	void setScore(int score);
 
 	enum {
 		ACTION_START,
@@ -29,12 +31,12 @@ private:
 	void drawBackground();
 	void prepareMenu();
 
-	SDL_Window *m_window;
 	SDL_Renderer *m_renderer;
 	SDL_Texture *m_background;
 	Painter *m_painter;
+	Singer *m_singer;
 
-	Text m_txTitle;
+	Text m_txTitle, m_txScore;
 
 	struct t_menuItem {
 		int action;
