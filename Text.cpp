@@ -1,4 +1,3 @@
-#include <stdarg.h>
 #include "Text.h"
 
 //SDL_Surface *Text::m_font = SDL_LoadBMP("..\\resources\\font50.bmp");
@@ -96,6 +95,11 @@ Text::getTexture(SDL_Renderer *renderer)
 	}
 
 	TTF_Font *font = TTF_OpenFont("resources/nk57-monospace-sc-rg.ttf", m_size);
+    if (!font) {
+        SDL_ShowSimpleMessageBox(0, "Error", "Unable to open resources/nk57-monospace-sc-rg.ttf", NULL);
+        exit(1);
+    }
+
 	SDL_Surface *textSurface = TTF_RenderText_Blended(font, m_text.c_str(), m_color);
 	TTF_CloseFont(font);
 

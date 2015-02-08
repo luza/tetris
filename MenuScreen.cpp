@@ -13,7 +13,6 @@ MenuScreen::MenuScreen(SDL_Renderer *renderer, Painter *painter, Singer *singer)
 	m_singer = singer;
 
 	m_slidedX = 0;
-	m_slidedY = 0;
 	m_activeMenuItem = 0;
 
 	generateBackground();
@@ -60,6 +59,10 @@ MenuScreen::generateBackground()
 
 	// all rendering commands will be applied to the texture
 	SDL_SetRenderTarget(m_renderer, m_background);
+
+    //Clear
+    SDL_SetRenderDrawColor(m_renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(m_renderer);
 
 	for (int y=0; y<4; y++) {
 		for (int x=0; x<6; x++) {
@@ -140,55 +143,29 @@ MenuScreen::drawBackground()
 {
 	SDL_Rect srect, trect;
 
-	// 1
-/*	srect.x = 0;
-	srect.y = 0;
-	srect.w = WINDOW_WIDTH_PX - m_slidedX;
-	srect.h = m_slidedY;
-
-	trect.x = m_slidedX;
-	trect.y = WINDOW_HEIGHT_PX - m_slidedY;
-	trect.w = WINDOW_WIDTH_PX - m_slidedX;
-	trect.h = m_slidedY;
-
-	SDL_RenderCopy(m_renderer, m_background, &srect, &trect);
-
-	// 2
-	srect.x = WINDOW_WIDTH_PX - m_slidedX;
-	srect.y = 0;
-	srect.w = m_slidedX;
-	srect.h = m_slidedY;
-
-	trect.x = 0;
-	trect.y = WINDOW_HEIGHT_PX - m_slidedY;
-	trect.w = m_slidedX;
-	trect.h = m_slidedY;
-
-	SDL_RenderCopy(m_renderer, m_background, &srect, &trect);*/
-
 	// 3
 	srect.x = 0;
-	srect.y = m_slidedY;
+	srect.y = 0;
 	srect.w = WINDOW_WIDTH_PX - m_slidedX;
-	srect.h = WINDOW_HEIGHT_PX - m_slidedY;
+	srect.h = WINDOW_HEIGHT_PX;
 
 	trect.x = m_slidedX;
 	trect.y = 0;
 	trect.w = WINDOW_WIDTH_PX - m_slidedX;
-	trect.h = WINDOW_HEIGHT_PX - m_slidedY;
+	trect.h = WINDOW_HEIGHT_PX;
 
 	SDL_RenderCopy(m_renderer, m_background, &srect, &trect);
 
 	// 4
 	srect.x = WINDOW_WIDTH_PX - m_slidedX;
-	srect.y = m_slidedY;
+	srect.y = 0;
 	srect.w = m_slidedX;
-	srect.h = WINDOW_HEIGHT_PX - m_slidedY;
+	srect.h = WINDOW_HEIGHT_PX;
 
 	trect.x = 0;
 	trect.y = 0;
 	trect.w = m_slidedX;
-	trect.h = WINDOW_HEIGHT_PX - m_slidedY;
+	trect.h = WINDOW_HEIGHT_PX;
 
 	SDL_RenderCopy(m_renderer, m_background, &srect, &trect);
 }
@@ -200,10 +177,6 @@ MenuScreen::animate()
 	if (m_slidedX >= WINDOW_WIDTH_PX) {
 		m_slidedX = 0;
 	}
-	//m_slidedY++;
-	//if (m_slidedY >= WINDOW_HEIGHT_PX) {
-	//	m_slidedY = 0;
-	//}
 	draw();
 }
 

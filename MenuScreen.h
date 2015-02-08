@@ -46,6 +46,6 @@ private:
 
 	std::vector<t_menuItem> m_menuList;
 
-	int m_slidedX, m_slidedY;
+	int m_slidedX;
 	Uint8 m_activeMenuItem;
 };
