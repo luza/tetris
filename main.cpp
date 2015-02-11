@@ -6,9 +6,9 @@
 int
 main(int argc, char* argv[])
 {
-	/* initialize random seed */
-	srand((unsigned int)time(NULL));
+    /* initialize random seed */
+    srand((unsigned int)time(NULL));
 
     AppController app;
-	return app.start();
+    return app.start();
 }

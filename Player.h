@@ -6,25 +6,25 @@
 class Player
 {
 public:
-	Player(Field *field);
-	~Player();
+    Player(Field *field);
+    ~Player();
 
-	enum {
-		ACTION_MOVE_LEFT,
-		ACTION_MOVE_RIGHT,
-		ACTION_ROTATE,
-		ACTION_DROP
-	};
+    enum {
+        ACTION_MOVE_LEFT,
+        ACTION_MOVE_RIGHT,
+        ACTION_ROTATE,
+        ACTION_DROP
+    };
 
-	int getNextAction(int posX, int posY, int rotation);
-	void setContext(Piece *piece, Piece *nextPiece);
+    int getNextAction(int posX, int posY, int rotation);
+    void setContext(Piece *piece, Piece *nextPiece);
 
 private:
-	void calculateDest();
-	int checkXR(int posX, int r);
+    void calculateDest();
+    int checkXR(int posX, int r);
 
-	int m_destPosX, m_destRotation;
+    int m_destPosX, m_destRotation;
 
-	Field *m_field;
-	Piece m_piece, m_nextPiece;
+    Field *m_field;
+    Piece m_piece, m_nextPiece;
 };
