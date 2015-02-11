@@ -213,9 +213,9 @@ AppController::onKeyPressGame(SDL_KeyboardEvent& keyEvent)
 void
 AppController::onTimer()
 {
-	bool gameOver = false;
-	m_screen->onTimer(&m_score, &gameOver);
-	if (gameOver) {
+	bool over = false;
+	m_screen->onTimer(&m_score, &over);
+	if (over) {
 		gameOver();
 	}
 	m_tickInterval = m_screen->getTimerInterval();
